@@ -31,13 +31,24 @@ function App() {
     setTitle("");
   }
   
-  const itemLoeschen = (id_nummer) => {
-    //console.log("Gedrückte Taste:" + id_nummer);
-    fetch(`http://localhost:3050/delete/${id_nummer}`, {
-      method: "DELETE",
-    })
+  // const itemLoeschen = (id_nummer) => {
+  //   //console.log("Gedrückte Taste:" + id_nummer);
+  //   fetch(`http://localhost:3050/delete/${id_nummer}`, {
+  //     method: "DELETE",
+  //   })
+  // }
 
-  }
+  const itemLoeschen = (id_nummer) => {
+		//console.log("Gedrückte Taste:" + id_nummer);
+		fetch(`http://localhost:3050/delete/${id_nummer}`, {
+			method: 'DELETE',
+		})
+			.then((res) => res.json())
+			.then((resjson) =>
+				tasks.filter((singleTask) => singleTask.id != resjson.id)
+			)
+			.then((filteredTasks) => setTasks(filteredTasks));
+	};
 
 
   return (

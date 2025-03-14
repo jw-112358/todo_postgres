@@ -30,20 +30,48 @@ app.get('/liste_abrufen', async (req, res) => {
 });
 
 // Wenn ein neues Item hinzugefügt werden soll, soll NodeJS Server diesen Request so behandeln:
+// app.post('/add', async (req, res) => {
+//     console.log("POST kommt an")
+//     const result = await pool.query('INSERT INTO tasks (title) VALUES ($1)', [req.body.title])
+//     console.log(result.rows) // !hier ist noch etwas falsch
+//     res.json(result.rows)
+
+
+//     // db.run('INSERT INTO tasks (title) VALUES (?)', [req.body.title], function () {
+//     //     res.json({id: this.lastID, title: req.body.title, completed: 0});
+//     // });
+
+// });
+
 app.post('/add', async (req, res) => {
-    console.log("POST kommt an")
-    const result = await pool.query('INSERT INTO tasks (title) VALUES ($1)', [req.body.title])
-    console.log(result.rows) // !hier ist noch etwas falsch
-    res.json(result.rows)
-
-
+    const result = await pool.query(
+      'INSERT INTO tasks (title) VALUES ($1) RETURNING *',
+      [req.body.title]
+    );
+    res.json(result.rows[0]);
+  
     // db.run('INSERT INTO tasks (title) VALUES (?)', [req.body.title], function () {
     //     res.json({id: this.lastID, title: req.body.title, completed: 0});
     // });
+  });
 
+app.delete('/delete/:id', async (req, res) => {
+	try {
+		const result = await pool.query('DELETE FROM tasks WHERE id = $1', [
+			req.params.id,
+		]);
+
+		if (result.rowCount !== 1) {
+			return res.status(404).json({ error: 'Task not found' });
+		}
+		res.json({ id: req.params.id });
+	} catch (err) {
+		console.log(err);
+		res
+			.status(500)
+			.json({ error: 'An error occurred while deleting the task' });
+	}
 });
-
-
 
 // app.delete('/delete/:id', (req, res) => {
 //     db.run('DELETE FROM tasks WHERE id = ?', req.params.id, () =>{res.json({message: "Eingabe gelöscht"})});
