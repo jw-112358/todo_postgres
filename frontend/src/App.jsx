@@ -6,32 +6,26 @@ function App() {
 	const [title, setTitle] = useState('');
 
 	useEffect(() => {
-		fetch('http://localhost:3050/liste_abrufen')
-			.then((res) => res.json())
+		fetch('http://localhost:3050/liste_abrufen') // fe -> be
+			.then((res) => res.json())  
 			.then(setTasks);
 	}, []);
 
 	const itemHinzufuegen = () => {
-		//Option 1 für Eingabecheck: falls Eingabefeld leer ist, mach nicht weiter
-
 		if (!title) {
 			return;
 		}
-
 		fetch('http://localhost:3050/add', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ title }),
 		})
-			// hier möchte ich, dass die Liste in der App auch aktualisiert wird
 			.then((res) => res.json())
 			.then((neueAufgabe) => setTasks([...tasks, neueAufgabe]));
-
 		setTitle('');
 	};
 
 	const itemLoeschen = (id_nummer) => {
-		//console.log("Gedrückte Taste:" + id_nummer);
 		fetch(`http://localhost:3050/delete/${id_nummer}`, {
 			method: 'DELETE',
 		})
@@ -44,12 +38,11 @@ function App() {
 
 	return (
 		<>
-			<h1>To-Do List</h1>
+			<h1>To-Do List</h1> 
 			<input value={title} onChange={(e) => setTitle(e.target.value)} />
 			<button disabled={!title.trim()} onClick={itemHinzufuegen}>
 				Add
 			</button>{' '}
-			{/* Option 2 für Eingabecheck: Button wird disabled bleiben wenn das Eingabefeld leer ist*/}
 			<ul>
 				{
 					tasks.map(({ id, title, completed }) => (

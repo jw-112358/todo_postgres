@@ -1,3 +1,4 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -5,8 +6,6 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
-
-//TODO: Verbinde eine Datenbank dazu
 
 const pool = new Pool({
 	user: process.env.DB_USER,
@@ -16,46 +15,36 @@ const pool = new Pool({
 	port: process.env.DB_PORT,
 });
 
-app.use(cors()); // Middleware
-app.use(bodyParser.json()); // Middleware (wie ein Übersetzer)
+app.use(cors());
+app.use(bodyParser.json());
 
-//TODO: Schreibe requests/responses
 
-// Liste mir alle existierende Items
-// hier sollte nur alle Items als JSON im Response geschrieben werden
 app.get('/liste_abrufen', async (req, res) => {
-	const result = await pool.query('SELECT * FROM tasks');
-	res.json(result.rows);
+	const result = await pool.query('SELECT * FROM tasks'); // be -> db, be <- db 
+	res.json(result.rows); // fe <- be
 });
 
-// Wenn ein neues Item hinzugefügt werden soll, soll NodeJS Server diesen Request so behandeln:
 app.post('/add', async (req, res) => {
-	const result = await pool.query(
+	const result = await pool.query(                          // be -> db, be <- db
 		'INSERT INTO tasks (title) VALUES ($1) RETURNING *',
 		[req.body.title]
 	);
-	res.json(result.rows[0]);
-
-	// db.run('INSERT INTO tasks (title) VALUES (?)', [req.body.title], function () {
-	//     res.json({id: this.lastID, title: req.body.title, completed: 0});
-	// });
+	res.json(result.rows[0]);                                 // fe <- be
 });
 
 app.delete('/delete/:id', async (req, res) => {
 	try {
-		const result = await pool.query('DELETE FROM tasks WHERE id = $1', [
-			req.params.id,
+		const result = await pool.query('DELETE FROM tasks WHERE id = $1', [     // be -> db, be <- db
+			req.params.id, 
 		]);
-
 		if (result.rowCount !== 1) {
-			return res.status(404).json({ error: 'Error Row Count' });
+			return res.status(404).json({ error: 'Error Row Count' });           // fe <- be
 		}
-		res.json({ id: req.params.id });
+		res.json({ id: req.params.id });                                         // fe <- be
 	} catch (err) {
-		console.log(err);
 		res
 			.status(500)
-			.json({ error: 'An error occurred while deleting the task' });
+			.json({ error: 'An error occurred while deleting the task' });       // fe <- be
 	}
 });
 
